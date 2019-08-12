@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.secret_key = 'jose'
 api = Api(app)
 
-jwr = JWT(app, authenticate, identity)  # /auth
+jwt = JWT(app, authenticate, identity)  # /auth
 
 items = []
 
@@ -39,6 +39,16 @@ class Item(Resource):
         global items
         items = list(filter(lambda x: x['name'] != name, items))
         return {'message': 'Item deleted'}
+
+    def put(self, name):
+        data = request.get_json()
+        item = next(filter(lambda x: x['name'] == name, items), None)
+        if not item:
+            item = {'name': name, 'price': data['price']}
+            items.append(item)
+        else:
+            item.update(data)
+        return item
 
 
 class ItemList(Resource):
